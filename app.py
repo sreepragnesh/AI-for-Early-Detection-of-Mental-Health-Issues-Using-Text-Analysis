@@ -28,15 +28,13 @@ def predict_mental_health_with_confidence(text):
     # Create a dictionary of confidence scores for each label
     confidence_dict = {label_map_reversed[i]: f"{score * 100:.2f}%" for i, score in enumerate(confidence_scores)}
     
-    # Find the highest confidence
-    max_confidence_label = max(confidence_dict, key=lambda k: confidence_dict[k])
-    max_confidence_value = confidence_dict[max_confidence_label]
-
-    # If the highest confidence is above a threshold (e.g., 80%), suggest contacting
+    # Check if any score exceeds 40% and suggest contacting for help
     suggestion = ""
-    if float(max_confidence_value.replace('%', '')) > 80:
-        suggestion = "We recommend contacting v-chance@vitap.ac.in for further assistance."
-
+    for label, score in confidence_dict.items():
+        if float(score.replace('%', '')) > 40:
+            suggestion = "We recommend contacting v-chance@vitap.ac.in for further assistance."
+            break
+    
     return predicted_label, confidence_dict, suggestion
 
 # Route for the home page (chat interface)
