@@ -27,7 +27,17 @@ def predict_mental_health_with_confidence(text):
     predicted_label = label_map_reversed[prediction[0]]
     # Create a dictionary of confidence scores for each label
     confidence_dict = {label_map_reversed[i]: f"{score * 100:.2f}%" for i, score in enumerate(confidence_scores)}
-    return predicted_label, confidence_dict
+    
+    # Find the highest confidence
+    max_confidence_label = max(confidence_dict, key=lambda k: confidence_dict[k])
+    max_confidence_value = confidence_dict[max_confidence_label]
+
+    # If the highest confidence is above a threshold (e.g., 80%), suggest contacting
+    suggestion = ""
+    if float(max_confidence_value.replace('%', '')) > 80:
+        suggestion = "We recommend contacting v-chance@vitap.ac.in for further assistance."
+
+    return predicted_label, confidence_dict, suggestion
 
 # Route for the home page (chat interface)
 @app.route("/")
@@ -39,10 +49,11 @@ def home():
 def predict():
     data = request.json
     text = data["message"]
-    predicted_label, confidence_dict = predict_mental_health_with_confidence(text)
+    predicted_label, confidence_dict, suggestion = predict_mental_health_with_confidence(text)
     return jsonify({
         "predicted_label": predicted_label,
-        "confidence_scores": confidence_dict
+        "confidence_scores": confidence_dict,
+        "suggestion": suggestion
     })
 
 if __name__ == "__main__":
